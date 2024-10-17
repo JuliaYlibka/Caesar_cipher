@@ -34,12 +34,24 @@ public class Main {
 
     public static void shifr(String inputFilePath, String outputFilePath) {
         Scanner in = new Scanner(System.in);
-
+        boolean ToNormal=false;
+        while(true){
+        System.out.println("Главное меню:\n1.Зашифровать данные\n2. Расшифровать данные");
+        int input=in.nextInt();
+        if(input==1)
+            break;
+        if (input==2){
+            ToNormal = true;
+            break;
+        }
+        if(input>2||input<=0) {
+            System.out.println("Неверный выбор!");
+        }}
         try (BufferedReader br = new BufferedReader(new FileReader(inputFilePath));
              BufferedWriter bw = new BufferedWriter(new FileWriter(outputFilePath))) {
 
             String line;
-            System.out.print("Введите количество сдвигов: ");
+            System.out.print(!ToNormal? "Введите количество сдвигов дя шифрования":"Введите ключ");
             int count = in.nextInt();
             StringBuilder result;
 
@@ -49,7 +61,7 @@ public class Main {
                 for (char ch : line.toCharArray()) {
                     if (Character.isLetter(ch)) {
                         char base = Character.isUpperCase(ch) ? 'A' : 'a';
-                        char encryptedChar = (char) ((ch - base + count) % 26 + base);
+                        char encryptedChar =!ToNormal?  (char) ((ch - base + count) % 26 + base): (char)((ch - base - count + 26) % 26 + base) ;
                         result.append(encryptedChar);
                     } else {
                         result.append(ch);
@@ -64,8 +76,6 @@ public class Main {
 
         } catch (IOException e) {
             System.err.println("Ошибка при чтении файла: " + e.getMessage());
-        } finally {
-            in.close();
         }
-    }
-}
+        in.close();
+    }}
