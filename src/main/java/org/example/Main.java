@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.io.*;
 import java.util.Scanner;
 
+import static java.lang.System.in;
+
 public class Main {
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
@@ -11,7 +13,7 @@ public class Main {
             String inputFilePath= getInputFile();
             System.out.println("Выбранный файл для чтения: " + inputFilePath);
             String outFilePath = getInputFile();
-            shifr(inputFilePath,outFilePath,menu());
+            menu(inputFilePath,outFilePath);
         }
         catch (IllegalArgumentException e){
             System.out.println(e.getMessage());
@@ -39,22 +41,24 @@ public class Main {
             throw new IllegalArgumentException("Выбор файла для сохранения отменен.");
         }
     }
-    public static boolean menu(){
+    public static void menu(String inputFilePath, String outFilePath){
         Scanner in = new Scanner(System.in);
         boolean ToNormal=false;
         while(true){
-            System.out.println("Главное меню:\n1.Зашифровать данные\n2. Расшифровать данные");
+            System.out.println("Главное меню:\n1.Зашифровать данные\n2. Расшифровать данные, используя ключ\n 3.Расшифровать данные подбором");
             int input=in.nextInt();
             if(input==1)
-                break;
+                shifr(inputFilePath,outFilePath,false);
             if (input==2){
-                ToNormal = true;
-                break;
+                shifr(inputFilePath,outFilePath,true);
+
             }
-            if(input>2 || input<=0) {
+            if(input==3)
+                forcedeShifr(inputFilePath,outFilePath);
+            if(input>3 || input<=0) {
                 System.out.println("Неверный выбор!");
             }}
-        return ToNormal;
+
     }
 
     public static void shifr(String inputFilePath, String outputFilePath,boolean ToNormal) {
@@ -92,6 +96,37 @@ public class Main {
         } catch (IOException e) {
             System.err.println("Ошибка при чтении файла: " + e.getMessage());
         }
-        in.close();
+    }
+    public static void forcedeShifr(String inputFilePath, String outputFilePath)
+    {
+        Scanner in = new Scanner(System.in);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputFilePath))) {
+            for (int i = 1; i < 26; i++) {
+                StringBuilder result = new StringBuilder();
+                try (BufferedReader br = new BufferedReader(new FileReader(inputFilePath))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        for (char ch : line.toCharArray()) {
+                            if (Character.isLetter(ch)) {
+                                char base = Character.isUpperCase(ch) ? 'A' : 'a';
+                                char decryptedChar = (char) ((ch - base - i + 26) % 26 + base);
+                                result.append(decryptedChar);
+                            } else {
+                                result.append(ch);
+                            }
+                        }
+                    }
+                }
+                bw.write("Ключ: " + i);
+                bw.newLine();
+                bw.write(result.toString());
+                bw.newLine();
+                bw.newLine();
+            }
+            System.out.println("Шифрование завершено. Результат записан в " + outputFilePath);}
+
+     catch (IOException e) {
+        System.err.println("Ошибка при чтении файла: " + e.getMessage());
+    }
     }
 }
